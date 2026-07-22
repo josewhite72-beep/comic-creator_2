@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const model = process.env.HF_IMAGE_MODEL || 'black-forest-labs/FLUX.1-schnell';
 
   try {
-    const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+    const response = await fetch(`https://router.huggingface.co/hf-inference/models/${model}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
