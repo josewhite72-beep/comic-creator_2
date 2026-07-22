@@ -7,7 +7,7 @@ PWA educativa para crear tiras cómicas en clases de inglés siguiendo el **Acti
 - Personajes SVG, fondos y objetos arrastrables
 - Speech bubbles, thought bubbles y caption boxes
 - **Generación de historias con IA** (DeepSeek) por tema, grado y fase AOA
-- **Generación de escenas ilustradas con IA** (Hugging Face) tipo cómic/cartoon, panel por panel o todas de una vez
+- **Generación de escenas ilustradas con IA** (Gemini, con tu propia API key) tipo cómic/cartoon, panel por panel o todas de una vez
 - Guardar/cargar cómics en localStorage
 - Export a HTML (color) o HTML print (blanco/negro para imprimir)
 - PWA instalable en Android/iOS
@@ -30,11 +30,9 @@ O conecta el repo directamente desde vercel.com
 En el dashboard de Vercel → Settings → Environment Variables:
 ```
 DEEPSEEK_API_KEY = sk-xxxxxxxxxxxxxxxx
-HF_API_KEY = hf_xxxxxxxxxxxxxxxx
 ```
-`HF_API_KEY` es un token de [Hugging Face](https://huggingface.co/settings/tokens) (gratis) y habilita el botón **🎨 Illustrate All Scenes** / **🎨 Illustrate scene**. Sin esta variable, el resto de la app funciona igual pero la ilustración con IA fallará.
 
-Opcional: `HF_IMAGE_MODEL` para cambiar el modelo de generación (por defecto `black-forest-labs/FLUX.1-schnell`).
+Para la ilustración de escenas **no hace falta variable de entorno**: cada docente pega su propia API key gratis de Gemini (desde [aistudio.google.com/apikey](https://aistudio.google.com/apikey)) tocando el botón **🔑** en la app. La key se guarda solo en ese dispositivo (localStorage) y las llamadas van directo del navegador a Gemini — así cada quien usa su propia cuota gratuita.
 
 ### 4. Redeploy
 Después de agregar la variable, haz redeploy desde el dashboard.
@@ -47,8 +45,7 @@ comic-creator/
 ├── sw.js              # Service Worker (cache offline)
 ├── vercel.json        # Vercel routing config
 ├── api/
-│   ├── generate.js       # Serverless proxy → DeepSeek API (guion)
-│   └── generate-image.js # Serverless proxy → Hugging Face (escenas ilustradas)
+│   └── generate.js       # Serverless proxy → DeepSeek API (guion)
 ├── css/
 │   └── style.css
 └── js/

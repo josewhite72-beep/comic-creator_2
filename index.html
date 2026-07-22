@@ -30,6 +30,7 @@
   </div>
   <div class="header-right">
     <button class="icon-btn" id="aiOpenBtn" title="AI Story Generator">✨ AI</button>
+    <button class="icon-btn" id="apiKeyBtn" title="Gemini API Key" onclick="openApiKeyModal()">🔑</button>
     <button class="icon-btn" id="clearCacheBtn" title="Clear cache & reload">🔄</button>
     <button class="icon-btn" id="saveBtn" title="Save">💾</button>
     <button class="icon-btn accent" id="exportBtn" title="Export">📤</button>
@@ -92,6 +93,25 @@
 </div>
 <div id="pasteOverlay" class="overlay hidden"></div>
 <div id="drawerOverlay" class="overlay hidden"></div>
+
+<!-- GEMINI API KEY MODAL -->
+<div id="apiKeyModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>🔑 Gemini API Key</span>
+      <button class="icon-btn" id="closeApiKey" onclick="closeApiKeyModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="import-hint">Needed for 🎨 Illustrate scene. Get a free key at
+        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.
+        Saved only on this device.</p>
+      <label class="field-label">API key</label>
+      <input type="text" id="geminiKeyInput" placeholder="AIza...">
+      <button class="ai-generate-btn" style="margin-top:10px;" onclick="saveApiKey()">✅ Save Key</button>
+    </div>
+  </div>
+</div>
+<div id="apiKeyOverlay" class="overlay hidden"></div>
 
 <!-- MAIN TOOLBAR -->
 <div class="main-toolbar">
