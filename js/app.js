@@ -629,6 +629,30 @@ function applyStoryToPanels(panels) {
 }
 
 // ===== AI ILLUSTRATED SCENES =====
+const ILLUSTRATION_STYLE = "children's comic book illustration, flat cartoon style, bold black outlines, bright flat colors, simple vector-art shapes, clean plain background, no text, no letters, no words, no speech bubbles, no watermark";
+const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image';
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+// ===== GEMINI API KEY MODAL =====
+function openApiKeyModal() {
+  const saved = localStorage.getItem('geminiApiKey') || '';
+  document.getElementById('geminiKeyInput').value = saved;
+  document.getElementById('apiKeyModal').classList.remove('hidden');
+  document.getElementById('apiKeyOverlay').classList.remove('hidden');
+}
+function closeApiKeyModal() {
+  document.getElementById('apiKeyModal').classList.add('hidden');
+  document.getElementById('apiKeyOverlay').classList.add('hidden');
+}
+function saveApiKey() {
+  const key = document.getElementById('geminiKeyInput').value.trim();
+  if (!key) { showToast('Enter a key first'); return; }
+  localStorage.setItem('geminiApiKey', key);
+  closeApiKeyModal();
+  showToast('Gemini key saved on this device');
+}
+
 async function illustratePanel(idx, opts) {
   opts = opts || {};
   const pd = S.panels[idx];
@@ -637,21 +661,39 @@ async function illustratePanel(idx, opts) {
     if (!opts.silent) showToast('No scene description for this panel yet. Generate a story first.');
     return false;
   }
+
+  const apiKey = (localStorage.getItem('geminiApiKey') || '').trim();
+  if (!apiKey) {
+    showToast('Add your free Gemini API key first (🔑 button)');
+    openApiKeyModal();
+    return false;
+  }
+
   const panel = document.getElementById('panel-' + idx);
   if (panel) panel.classList.add('illustrating');
   if (!opts.silent) showToast('🎨 Illustrating panel ' + (idx + 1) + '...');
 
   try {
-    const resp = await fetch('/api/generate-image', {
+    const prompt = ILLUSTRATION_STYLE + '. Scene: ' + sceneDesc;
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/' +
+      GEMINI_IMAGE_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey);
+
+    const resp = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ scene: sceneDesc })
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Image generation failed');
+    if (!resp.ok) throw new Error((data.error && data.error.message) || 'Image generation failed (' + resp.status + ')');
+
+    const parts = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts;
+    const imgPart = parts && parts.find(p => p.inlineData);
+    if (!imgPart) throw new Error('No image returned by Gemini');
+
+    const dataUrl = 'data:' + imgPart.inlineData.mimeType + ';base64,' + imgPart.inlineData.data;
 
     ensurePanel(idx);
-    S.panels[idx].bg = '<img src="' + data.image + '" alt="Illustrated scene" style="width:100%;height:100%;object-fit:cover;display:block;">';
+    S.panels[idx].bg = '<img src="' + dataUrl + '" alt="Illustrated scene" style="width:100%;height:100%;object-fit:cover;display:block;">';
 
     if (panel) {
       const existingBg = panel.querySelector('.panel-bg-wrap');
