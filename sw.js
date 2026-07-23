@@ -1,4 +1,4 @@
-const CACHE_NAME = 'comic-creator-v8';
+const CACHE_NAME = 'comic-creator-v9';
 const ASSETS = [
   '/',
   '/index.html',
